@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "hack-ui"
+version = "0.1.0"
+description = ""
+authors = ["Rico Schrage <rico.schrage@uni-oldenburg.de>"]
+readme = "README.md"
+packages = [{include = "hack_ui"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+dash = "^2.16.0"
+pandas = "^2.2.1"
+requests = "^2.31.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
