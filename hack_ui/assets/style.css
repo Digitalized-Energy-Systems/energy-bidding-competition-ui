@@ -1,0 +1,45 @@
+body {
+    font-family: sans-serif
+}
+
+.card-title {
+    font-size: 26px;
+}
+
+.card-value {
+    font-size: 46px;
+    color: #0091EA;
+    width: 100%;
+    text-align: center;
+}
+
+.card-description {
+    font-size: 18px;
+    margin: 0px;
+    margin-top: 10px;
+}
+
+.section-title {
+    font-size: 56px;
+    text-align: center;
+}
+
+.dbc-row {
+    margin: 20px;
+}
+
+.auction-table {
+    font-size: 30px;
+}
+
+.auction-value {
+    color: #0091EA !important;
+}
+
+.account-table {
+    font-size: 30px;
+}
+
+.balance-value {
+    color: #0091EA !important;
+}
