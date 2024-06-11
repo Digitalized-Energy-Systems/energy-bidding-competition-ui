@@ -160,6 +160,13 @@ def update_cst(value):
     )
 
 
+def to_participant(actor, mapping):
+    new_actor = actor
+    for aid, pid in mapping.items():
+        new_actor = new_actor.replace(aid, pid[0:-2])
+    return new_actor
+
+
 @callback(
     Output("balances", "children"),
     Input(component_id="load_interval", component_property="n_intervals"),
@@ -167,9 +174,11 @@ def update_cst(value):
 def update_accounts(value):
     balance_dict = requests.get("http://127.0.0.1:8000/account/balances").json()
     tr_list = []
+    actor_part_mapping = requests.get("http://127.0.0.1:8000/ui/participant_map").json()
     for actor, balance in sorted(balance_dict.items(), key=lambda x: -x[1]):
+        part = to_participant(actor, actor_part_mapping)
         tr_list.append(
-            html.Tr([html.Td(actor), html.Td(balance, className="balance-value")])
+            html.Tr([html.Td(part), html.Td(balance, className="balance-value")])
         )
 
     table_header = [html.Thead(html.Tr([html.Th("Name"), html.Th("Balance")]))]
@@ -324,10 +333,4 @@ def update_graph(value):
 """
 
 if __name__ == "__main__":
-    print(
-        requests.post(
-            "http://127.0.0.1:8000/hackathon/register",
-            params={"participant_id": "PlaceholderA"},
-        ).text
-    )
     app.run(debug=True)
