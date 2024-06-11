@@ -266,7 +266,13 @@ def update_price_history(value):
     ]
 
 
-def visualize_auction_dict(auction_dict, is_result=False, clearing_price=None):
+def visualize_auction_dict(
+    auction_dict,
+    is_result=False,
+    clearing_price=None,
+    awarded_orders=None,
+    actor_part_mapping=None,
+):
     amount = auction_dict["tender_amount_kw"]
     minimum_order = auction_dict["minimum_order_amount_kw"]
     closure = format_simulation_time(auction_dict["gate_closure_time"])
@@ -291,6 +297,25 @@ def visualize_auction_dict(auction_dict, is_result=False, clearing_price=None):
     row4 = html.Tr(
         [html.Td("Supply"), html.Td(supply_start, className="auction-value")]
     )
+    if is_result:
+        awarded_agents = list(
+            set(
+                [
+                    (
+                        to_participant(order["agents"][0], actor_part_mapping)
+                        if len(order["agents"]) == 1
+                        else order["agents"]
+                    )
+                    for order in awarded_orders
+                ]
+            )
+        )
+        row2 = html.Tr(
+            [
+                html.Td("Awarded"),
+                html.Td(str(awarded_agents), className="auction-value"),
+            ]
+        )
     table_body = [html.Tbody([row1, row2, row3, row4])]
 
     return dbc.Table(table_body, bordered=False, class_name="auction-table")
@@ -305,6 +330,7 @@ def visualize_auction_dict(auction_dict, is_result=False, clearing_price=None):
     Input(component_id="load_interval", component_property="n_intervals"),
 )
 def update_auction(value):
+    actor_part_mapping = requests.get(f"http://{HOST}:8000/ui/participant_map").json()
     current_result_auctions = requests.get(
         f"http://{HOST}:8000/ui/auction/results"
     ).json()["results"]
@@ -324,6 +350,8 @@ def update_auction(value):
                     auction_result_dict["params"],
                     is_result=True,
                     clearing_price=auction_result_dict["clearing_price"],
+                    awarded_orders=auction_result_dict["awarded_orders"],
+                    actor_part_mapping=actor_part_mapping,
                 )
             )
         )
