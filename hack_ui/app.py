@@ -1,11 +1,12 @@
 from dash import Dash, html, dcc, callback, Output, Input
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import requests
 import dash_bootstrap_components as dbc
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-HOST = "192.168.91.84"
+HOST = "127.0.0.1"
 
 
 def create_card(title, content_id, description):
@@ -22,6 +23,21 @@ def create_card(title, content_id, description):
 
 app.layout = html.Div(
     [
+        html.H1(children="Ranking", style={"textAlign": "center"}, className="section-title"),
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        create_card(
+                            "Accounts",
+                            "balances",
+                            "Account owners and their account balance",
+                        )
+                    ]
+                )
+            ],
+            className="dbc-row",
+        ),
         html.H1(children="Market-State", className="section-title"),
         dbc.Row(
             [
@@ -96,15 +112,14 @@ app.layout = html.Div(
             ],
             className="dbc-row",
         ),
-        html.H1(children="Ranking", style={"textAlign": "center"}),
         dbc.Row(
             [
                 dbc.Col(
                     [
                         create_card(
-                            "Accounts",
-                            "balances",
-                            "Account owners and their account balance",
+                            "Clearing price",
+                            "clearingprice",
+                            "History of the clearing price",
                         )
                     ]
                 )
@@ -232,6 +247,22 @@ def update_demand(value):
                 },
             )
         ),
+    ]
+    
+
+@callback(
+    Output("clearingprice", "children"),
+    Input(component_id="load_interval", component_property="n_intervals"),
+)
+def update_price_history(value):
+
+    price_json = requests.get(f"http://{HOST}:8000/market/auction/price_history/").json()
+    
+    fig = go.Figure(data=go.Scatter(x=list(range(len(price_json["price_history"]))), y=price_json["price_history"]))
+    return [
+        dcc.Graph(
+            figure=fig
+        )
     ]
 
 
