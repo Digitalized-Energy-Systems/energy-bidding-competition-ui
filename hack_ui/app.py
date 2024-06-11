@@ -5,6 +5,7 @@ import requests
 import dash_bootstrap_components as dbc
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+HOST = "192.168.91.84"
 
 
 def create_card(title, content_id, description):
@@ -144,7 +145,7 @@ def format_simulation_time(txt):
     Input(component_id="load_interval", component_property="n_intervals"),
 )
 def update_step_time(value):
-    time_to = int(float(requests.get("http://127.0.0.1:8000/ui/next_step").text))
+    time_to = int(float(requests.get(f"http://{HOST}:8000/ui/next_step").text))
     if time_to == -1:
         return "Pause"
     return time_to
@@ -156,7 +157,7 @@ def update_step_time(value):
 )
 def update_cst(value):
     return format_simulation_time(
-        requests.get("http://127.0.0.1:8000/ui/current_st").text
+        requests.get(f"http://{HOST}:8000/ui/current_st").text
     )
 
 
@@ -172,9 +173,9 @@ def to_participant(actor, mapping):
     Input(component_id="load_interval", component_property="n_intervals"),
 )
 def update_accounts(value):
-    balance_dict = requests.get("http://127.0.0.1:8000/account/balances").json()
+    balance_dict = requests.get(f"http://{HOST}:8000/account/balances").json()
     tr_list = []
-    actor_part_mapping = requests.get("http://127.0.0.1:8000/ui/participant_map").json()
+    actor_part_mapping = requests.get(f"http://{HOST}:8000/ui/participant_map").json()
     for actor, balance in sorted(balance_dict.items(), key=lambda x: -x[1]):
         part = to_participant(actor, actor_part_mapping)
         tr_list.append(
@@ -197,7 +198,7 @@ def update_demand(value):
     import json
 
     demand_df = pd.DataFrame.from_dict(
-        json.loads(requests.get("http://127.0.0.1:8000/system/demand").json())
+        json.loads(requests.get(f"http://{HOST}:8000/system/demand").json())
     )
 
     return [
@@ -274,10 +275,10 @@ def visualize_auction_dict(auction_dict, is_result=False, clearing_price=None):
 )
 def update_auction(value):
     current_result_auctions = requests.get(
-        "http://127.0.0.1:8000/ui/auction/results"
+        f"http://{HOST}:8000/ui/auction/results"
     ).json()["results"]
     current_open_auctions = requests.get(
-        "http://127.0.0.1:8000/market/auction/open"
+        f"http://{HOST}:8000/market/auction/open"
     ).json()["auctions"]
 
     div_list = ["No auction yet"] * 4
@@ -307,7 +308,7 @@ def update_auction(value):
 )
 def update_graph(value):
     price_data = pd.DataFrame(
-        requests.get("http://127.0.0.1:8000/market/price").json()["data"]
+        requests.get("http://{HOST}:8000/market/price").json()["data"]
     )
     if len(price_data) > 0:
         return px.line(price_data, x="time", y="price")
@@ -320,7 +321,7 @@ def update_graph(value):
     Input(component_id="load_interval", component_property="n_intervals"),
 )
 def update_graph(value):
-    aid_to_bids = requests.get("http://127.0.0.1:8000/market/bids").json()
+    aid_to_bids = requests.get("http://{HOST}:8000/market/bids").json()
     return [
         html.Div(
             [
