@@ -23,7 +23,9 @@ def create_card(title, content_id, description):
 
 app.layout = html.Div(
     [
-        html.H1(children="Ranking", style={"textAlign": "center"}, className="section-title"),
+        html.H1(
+            children="Ranking", style={"textAlign": "center"}, className="section-title"
+        ),
         dbc.Row(
             [
                 dbc.Col(
@@ -248,7 +250,7 @@ def update_demand(value):
             )
         ),
     ]
-    
+
 
 @callback(
     Output("clearingprice", "children"),
@@ -256,14 +258,17 @@ def update_demand(value):
 )
 def update_price_history(value):
 
-    price_json = requests.get(f"http://{HOST}:8000/market/auction/price_history/").json()
-    
-    fig = go.Figure(data=go.Scatter(x=list(range(len(price_json["price_history"]))), y=price_json["price_history"]))
-    return [
-        dcc.Graph(
-            figure=fig
+    price_json = requests.get(
+        f"http://{HOST}:8000/market/auction/price_history/"
+    ).json()
+
+    fig = go.Figure(
+        data=go.Scatter(
+            x=list(range(len(price_json["price_history"]))),
+            y=price_json["price_history"],
         )
-    ]
+    )
+    return [dcc.Graph(figure=fig)]
 
 
 def visualize_auction_dict(
@@ -359,38 +364,6 @@ def update_auction(value):
         div_list.append("No result yet.")
     return div_list
 
-
-"""
-@callback(
-    Output("graph-content", "figure"),
-    Input(component_id="load_interval", component_property="n_intervals"),
-)
-def update_graph(value):
-    price_data = pd.DataFrame(
-        requests.get("http://{HOST}:8000/market/price").json()["data"]
-    )
-    if len(price_data) > 0:
-        return px.line(price_data, x="time", y="price")
-    else:
-        return None
-
-
-@callback(
-    Output("agent-graph-container", "children"),
-    Input(component_id="load_interval", component_property="n_intervals"),
-)
-def update_graph(value):
-    aid_to_bids = requests.get("http://{HOST}:8000/market/bids").json()
-    return [
-        html.Div(
-            [
-                html.H2(aid),
-                dcc.Graph(figure=px.line(pd.DataFrame(bids), x="interval", y="price")),
-            ]
-        )
-        for (aid, bids) in aid_to_bids.items()
-    ]
-"""
 
 if __name__ == "__main__":
     app.run(debug=True)
